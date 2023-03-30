@@ -54,7 +54,7 @@ jobs:
       working-directory: .
 
     - name: Update Lambda function
-      uses: einaregilsson/lambda-deploy@v2.1.0
+      uses: appleboy/lambda-action@master
       with:
         files: 'lambda-deploy-package.zip'
       env:
