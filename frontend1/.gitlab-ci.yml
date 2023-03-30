@@ -1,0 +1,45 @@
+# Define variables and git GIT_STRATEGY AND overlay2 driver
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  GIT_STRATEGY: clone
+
+# Define stages
+stages:
+  - build
+  - deploy
+
+# Define job for building frontend image to build and push to dockerhub
+build_frontend:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t azarudeenshariff/uv-np-di-fea:v1 .
+    - docker login -u azarudeenshariff -p $DOCKER_PASSWORD
+    - docker push $DOCKER_USERNAME/uv-np-di-fea:v1
+
+# Define job for deploying frontend to Kubernetes cluster and installing kubectl, apply deploypment & service
+deploy_frontend:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - if ! command -v kubectl &> /dev/null; then
+      echo "kubectl not found, installing";
+      curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl";
+      mkdir -p ~/.local/bin;
+      install kubectl ~/.local/bin/;
+      echo 'export PATH=$PATH:~/.local/bin/' >> ~/.bashrc;
+      source ~/.bashrc;
+      fi
+  script:
+    - mkdir -p ~/.kube
+    - cp kubeconfig.yaml ~/.kube/config
+    - kubectl config use-context kubernetes-admin@kubernetes
+    - kubectl apply -f fe_deployment.yaml -n azar-uservalidation
+    - kubectl apply -f fe_service.yaml -n azar-uservalidation
+
+
