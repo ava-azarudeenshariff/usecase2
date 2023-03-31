@@ -22,7 +22,6 @@ jobs:
     - name: Build frontend
       run: |
         cd frontend
-        npx browserslist@latest --update-db
         npm run build
       env:
         AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
