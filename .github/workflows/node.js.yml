@@ -21,6 +21,7 @@ jobs:
 
     - name: Build frontend
       run: |
+        npx browserslist@latest --update-db
         cd frontend
         npm run build
       env:
