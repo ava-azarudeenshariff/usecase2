@@ -19,14 +19,10 @@ jobs:
         cd ../backend
         npm install
 
-    - name: Update Browserslist
-      run: |
-        npx browserslist@latest --update-db
-
     - name: Build frontend
       run: |
         cd frontend
-        npm install react-scripts@latest
+        npx browserslist@latest --update-db
         npm run build
       env:
         AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
